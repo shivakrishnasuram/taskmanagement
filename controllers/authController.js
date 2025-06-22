@@ -20,17 +20,13 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
-
     try {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ error: "User not found" });
-
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return res.status(400).json({ error: "Invalid credentials" });
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "3min" });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET,{ expiresIn: "1hr" });
         const tasks = await Task.find({ userId: user._id });
-
         res.json({
             token,
             user: { id: user._id, username: user.username, email: user.email },
